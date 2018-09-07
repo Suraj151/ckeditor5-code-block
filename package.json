@@ -10,7 +10,7 @@
     "@ckeditor/ckeditor5-ui": "^11.0.0"
   },
   "deprecated": false,
-  "description": "pre element (to write longer code snippets) for CKEditor 5.",
+  "description": "code block (to write longer code snippets) for CKEditor 5.",
   "devDependencies": {
     "@ckeditor/ckeditor5-editor-classic": "^11.0.0",
     "@ckeditor/ckeditor5-enter": "^10.1.1",
@@ -36,9 +36,10 @@
     "ckeditor",
     "ckeditor5",
     "ckeditor 5",
-    "ckeditor5-feature"
+    "ckeditor5-feature",
+    "code-block"
   ],
   "license": "GPL-2.0-or-later",
-  "name": "ckeditor5-pre-element",
+  "name": "ckeditor5-code-block",
   "version": "1.0.0"
 }

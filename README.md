@@ -1,5 +1,17 @@
-# ckeditor5-pre-element
+# ckeditor5-code-block
 pre element (to write longer code snippets) for CKEditor 5. https://ckeditor.com
+this will enable add code block feature to editor with language select feature. languages are added that supported by Javascript syntax highlighter
+
+use
+
+```js
+$(document).ready(function() {
+  $('pre').each(function(i, block) {
+    hljs.highlightBlock(block);
+  });
+});
+```
+to hilight code. for more refer https://github.com/highlightjs/highlight.js
 
 **Example**
 
@@ -57,12 +69,12 @@ ClassicEditor
 
 **Note:** If you are planning to integrate CKEditor 5 deep into your application, it is actually more convenient and recommended to install and import the source modules directly (like it happens in `ckeditor.js`). Read more in the [Advanced setup guide](https://docs.ckeditor.com/ckeditor5/latest/builds/guides/integration/advanced-setup.html).
 
-**Including ckeditor5-pre-element with classic editor**
+**Including ckeditor5-code-block with classic editor**
 
 now install pre element
 
 ```bash
-npm install ckeditor5-pre-element
+npm install ckeditor5-code-block
 ```
 open "ckeditor5-build-classic/src/ckeditor.js" source file where you can see imported packages.
 now import ckeditor5-pre-element as shown in below example and build.
@@ -89,7 +101,7 @@ import Link from '@ckeditor/ckeditor5-link/src/link';
 import List from '@ckeditor/ckeditor5-list/src/list';
 import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 
-import PreElement from 'ckeditor5-pre-element/src/pre';
+import PreElement from 'ckeditor5-code-block/src/pre';
 
 export default class ClassicEditor extends ClassicEditorBase {}
 
@@ -147,7 +159,7 @@ ClassicEditor.defaultConfig = {
 ```
 After build you can see code block pre element icon in classic editor top bars.
 
-**Note:** click on icon to insert/leave pre element in your editor.
+**Note:** click on icon to insert/leave code block in your editor.
 
 Help to imporove this as i am new to this platform.
 
