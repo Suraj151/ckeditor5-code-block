@@ -39,5 +39,6 @@
     "ckeditor5-feature"
   ],
   "license": "GPL-2.0-or-later",
-  "name": "ckeditor5-pre-element"
+  "name": "ckeditor5-pre-element",
+  "version": "1.0.0"
 }

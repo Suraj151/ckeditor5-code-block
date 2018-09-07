@@ -16,12 +16,20 @@ const PRE = "pre";
 
 export default class PreCommand extends Command {
 
+	constructor( editor, options ) {
+		super( editor );
+
+		this.language_options = options;
+	}
+
+
 	refresh() {
 		const model = this.editor.model;
 		const doc = model.document;
+		let _option = this._checkEnabled();
 
-		this.value = this._checkEnabled();
 		this.isEnabled = true;
+		this.value = _option ? _option.title:"select language";
 	}
 
 	/**
@@ -30,7 +38,7 @@ export default class PreCommand extends Command {
 	 * @fires execute
 	 * @param {String} link to embed
 	 */
-	execute( editor ) {
+	execute( options ) {
 		const model = this.editor.model;
 		const selection = model.document.selection;
 		const firstPosition = selection.getFirstPosition();
@@ -39,9 +47,13 @@ export default class PreCommand extends Command {
 		let insertPosition = isRoot ? Position.createAt( firstPosition ) :
 								Position.createAfter( firstPosition.parent );
 
+		// console.log("pre option: ", options);
+		this.value = options ? options.title:"";
+		let _element = options ? options.model:PRE;
+
 		model.change( writer => {
 
-			let node = writer.createElement( PRE );
+			let node = writer.createElement( _element );
 
 			if( selection.isCollapsed ){
 
@@ -78,7 +90,7 @@ export default class PreCommand extends Command {
 
 				if( !range.isFlat ){
 
-					let parentInfo = mergeElements( model, writer );
+					let parentInfo = mergeElements( model, writer, true );
 
 					if( parentInfo ){
 
@@ -106,32 +118,42 @@ export default class PreCommand extends Command {
 		const doc = this.editor.model.document;
 		const positionParent = doc.selection.getLastPosition().parent;
 
-		return positionParent.name == PRE;
+		for( const option of this.language_options){
+			if( positionParent.name == option.model ) return option;
+		}
+
+		return false;
 	}
 
 }
 
 
-function mergeElements( model, writer ){
+function mergeElements( model, writer, _continue ){
 
-	const selection = model.document.selection;
-	const firstPosition = selection.getFirstPosition();
-	const lastPosition = selection.getLastPosition();
-	const isRoot = firstPosition.parent === firstPosition.root;
-	const insertPosition = isRoot ? Position.createAt( firstPosition ) :
+	let selection = model.document.selection;
+	let firstPosition = selection.getFirstPosition();
+	let lastPosition = selection.getLastPosition();
+	let isRoot = firstPosition.parent === firstPosition.root;
+	let insertPosition = isRoot ? Position.createAt( firstPosition ) :
 								Position.createAfter( firstPosition.parent );
 
 
-	const range = new Range(firstPosition, lastPosition);
-	const anccestor = range.getCommonAncestor();
+	let range = new Range(firstPosition, lastPosition);
+	let anccestor = range.getCommonAncestor();
 
 	let inRange = false;
 
-	if( !range.isFlat ){
+	if( !range.isFlat && _continue ){
 
 		for(const child of anccestor.getChildren()){
 			if( range.containsItem(child) ){
 			// range.containsItem does not return 1st child in range, so Position.createBefore is used
+//				console.log("child:", child);
+				if( child.name == "image" ){
+					// selection.setTo( new Range(firstPosition, Position.createBefore( child )) );
+					// return { range : new Range(firstPosition, Position.createBefore( child )), position : insertPosition };
+					return	mergeElements( model, writer, false );
+				}
 
 				let _position = Position.createBefore( child );
 				writer.insert( writer.createElement( 'softBreak' ), child );
@@ -140,7 +162,8 @@ function mergeElements( model, writer ){
 
 					writer.merge(_position);
 				}else{
-					return null;
+					// return null;
+					return	mergeElements( model, writer, false );
 				}
 
 				inRange = true;
@@ -152,9 +175,9 @@ function mergeElements( model, writer ){
 	}
 
 
-	if( inRange ){
+	if( _continue && inRange ){
 
-		return	mergeElements( model, writer );
+		return	mergeElements( model, writer, true );
 	}
 
 	return { range : range, position : insertPosition };
