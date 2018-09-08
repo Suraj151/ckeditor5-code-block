@@ -1,0 +1,7 @@
+.ck-code-languages-dropdown, .ck-code-languages-dropdown div{
+	width: auto;
+}
+
+.ck-code-languages-dropdown div ul li{
+	min-width: auto !important;
+}

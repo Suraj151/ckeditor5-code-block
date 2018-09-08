@@ -8,6 +8,7 @@ import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 import Model from '@ckeditor/ckeditor5-ui/src/model';
 import { createDropdown, addListToDropdown } from '@ckeditor/ckeditor5-ui/src/dropdown/utils';
 import Collection from '@ckeditor/ckeditor5-utils/src/collection';
+import '../theme/pre.css';
 
 import preIcon from '../theme/icons/codeblock.svg';
 
@@ -97,6 +98,14 @@ export default class PreUI extends Plugin {
 			isOn: false,
 			withText: true,
 			tooltip: dropdownTooltip
+		} );
+
+		dropdownView.extendTemplate( {
+			attributes: {
+				class: [
+					'ck-code-languages-dropdown'
+				]
+			}
 		} );
 
 		dropdownView.bind( 'isEnabled' ).to( preCommand, 'isEnabled' );
