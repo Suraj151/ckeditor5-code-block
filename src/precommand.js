@@ -48,7 +48,6 @@ export default class PreCommand extends Command {
 								Position.createAfter( firstPosition.parent );
 
 		// console.log("pre option: ", options);
-		this.value = options ? options.title:"";
 		let _element = options ? options.model:PRE;
 
 		model.change( writer => {
@@ -58,7 +57,7 @@ export default class PreCommand extends Command {
 			if( selection.isCollapsed ){
 
 
-				if(lastPosition && lastPosition.parent && lastPosition.parent.name == PRE){
+				if( this._checkEnabled() ){
 
 					node = writer.createElement( 'paragraph' );
 				}
@@ -66,7 +65,7 @@ export default class PreCommand extends Command {
 				writer.insert( node, insertPosition );
 				writer.setSelection( Position.createAt( node ) );
 
-				// if(lastPosition && lastPosition.parent && lastPosition.parent.name != PRE){
+				// if( !this._checkEnabled() ){
 
 				// 	writer.setSelectionAttribute( 'code', true );
 				// }
@@ -76,14 +75,14 @@ export default class PreCommand extends Command {
 				let range = new Range(firstPosition, lastPosition);
 				let anccestor = range.getCommonAncestor();
 
-				if(lastPosition && lastPosition.parent && lastPosition.parent.name == PRE){
+				if( this._checkEnabled() ){
 
 					node = writer.createElement( 'paragraph' );
 					// writer.removeAttribute( 'code', range );
 				}
 
 
-				// if(lastPosition && lastPosition.parent && lastPosition.parent.name != PRE){
+				// if( !this._checkEnabled() ){
 
 				// 	writer.setAttributes( {'code': true}, range );
 				// }
@@ -151,7 +150,7 @@ function mergeElements( model, writer, _continue ){
 //				console.log("child:", child);
 				if( child.name == "image" ){
 					// selection.setTo( new Range(firstPosition, Position.createBefore( child )) );
-					// return { range : new Range(firstPosition, Position.createBefore( child )), position : insertPosition };
+					// return { range : new Range(firstPosition, Position.createBefore( child )), position : insertPosition };	
 					return	mergeElements( model, writer, false );
 				}
 

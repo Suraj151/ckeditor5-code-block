@@ -198,6 +198,11 @@ export default class PreUI extends Plugin {
 			return;
 		}
 
+		if( preCommand.value != "select language" ){
+			editor.execute(PRE);
+			return
+		}
+
 		this._addDropDownView();
 	}
 
