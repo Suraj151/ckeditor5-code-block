@@ -71,8 +71,18 @@ ClassicEditor
 
 **Note:** If you are planning to integrate CKEditor 5 deep into your application, it is actually more convenient and recommended to install and import the source modules directly (like it happens in `ckeditor.js`). Read more in the [Advanced setup guide](https://docs.ckeditor.com/ckeditor5/latest/builds/guides/integration/advanced-setup.html).
 
+
+**Including ckeditor5-code-block with classic editor**
+
+now install code-block package
+
+```bash
+npm install ckeditor5-code-block
+```
+
+
 open "ckeditor5-build-classic/src/ckeditor.js" source file where you can see imported packages.
-now import ckeditor5-pre-element as shown in below example and build.
+now import ckeditor5-code-block as shown in below example and build.
 
 ```js
 
