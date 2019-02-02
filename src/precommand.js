@@ -43,16 +43,13 @@ export default class PreCommand extends Command {
 		const selection = model.document.selection;
 		const firstPosition = selection.getFirstPosition();
 		const lastPosition = selection.getLastPosition();
-		const isRoot = firstPosition.parent === firstPosition.root;
-		let insertPosition = isRoot ? Position.createAt( firstPosition ) :
-								Position.createAfter( firstPosition.parent );
-
-		// console.log("pre option: ", options);
+		let isRoot = firstPosition.parent === firstPosition.root;
 		let _element = options ? options.model:PRE;
 
 		model.change( writer => {
 
 			let node = writer.createElement( _element );
+			let insertPosition = isRoot ? lastPosition : writer.createPositionAfter( firstPosition.parent );
 
 			if( selection.isCollapsed ){
 
@@ -63,7 +60,11 @@ export default class PreCommand extends Command {
 				}
 
 				writer.insert( node, insertPosition );
-				writer.setSelection( Position.createAt( node ) );
+				writer.setSelection( node, 0 );
+
+				if( !isRoot && firstPosition.parent.isEmpty ){
+					writer.remove( firstPosition.parent );
+				}
 
 				// if( !this._checkEnabled() ){
 
@@ -72,7 +73,7 @@ export default class PreCommand extends Command {
 
 			} else {
 
-				let range = new Range(firstPosition, lastPosition);
+				let range = writer.createRange(firstPosition, lastPosition);
 				let anccestor = range.getCommonAncestor();
 
 				if( this._checkEnabled() ){
@@ -80,7 +81,6 @@ export default class PreCommand extends Command {
 					node = writer.createElement( 'paragraph' );
 					// writer.removeAttribute( 'code', range );
 				}
-
 
 				// if( !this._checkEnabled() ){
 
@@ -94,17 +94,18 @@ export default class PreCommand extends Command {
 					if( parentInfo ){
 
 						range = parentInfo.range;
+						isRoot = parentInfo.isRoot;
 						insertPosition = parentInfo.position;
 						anccestor = range.getCommonAncestor();
 					}
 				}
 
 				writer.insert( node, insertPosition );
-				writer.setSelection( Position.createAt( node ) );
+				writer.setSelection( node, 0 );
 
-				if( range.isFlat ){
+				if( range.isFlat && !isRoot ){
 
-					writer.move( range, node );
+					writer.move( range, node, 0 );
 					writer.remove( anccestor );
 				}
 
@@ -133,11 +134,9 @@ function mergeElements( model, writer, _continue ){
 	let firstPosition = selection.getFirstPosition();
 	let lastPosition = selection.getLastPosition();
 	let isRoot = firstPosition.parent === firstPosition.root;
-	let insertPosition = isRoot ? Position.createAt( firstPosition ) :
-								Position.createAfter( firstPosition.parent );
+	let insertPosition = isRoot ? lastPosition : writer.createPositionAfter( firstPosition.parent );
 
-
-	let range = new Range(firstPosition, lastPosition);
+	let range = writer.createRange(firstPosition, lastPosition);
 	let anccestor = range.getCommonAncestor();
 
 	let inRange = false;
@@ -147,10 +146,9 @@ function mergeElements( model, writer, _continue ){
 		for(const child of anccestor.getChildren()){
 			if( range.containsItem(child) ){
 			// range.containsItem does not return 1st child in range, so Position.createBefore is used
-//				console.log("child:", child);
 				if( child.name == "image" ){
 					// selection.setTo( new Range(firstPosition, Position.createBefore( child )) );
-					// return { range : new Range(firstPosition, Position.createBefore( child )), position : insertPosition };	
+					// return { range : new Range(firstPosition, Position.createBefore( child )), position : insertPosition };
 					return	mergeElements( model, writer, false );
 				}
 
@@ -179,6 +177,6 @@ function mergeElements( model, writer, _continue ){
 		return	mergeElements( model, writer, true );
 	}
 
-	return { range : range, position : insertPosition };
+	return { range : range, position : insertPosition, isRoot : isRoot };
 
 }
