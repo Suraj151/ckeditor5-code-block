@@ -4,25 +4,25 @@
   },
   "bundleDependencies": false,
   "dependencies": {
-    "@ckeditor/ckeditor5-core": "^11.0.0",
-    "@ckeditor/ckeditor5-engine": "^10.2.0",
-    "@ckeditor/ckeditor5-theme-lark": "^11.0.0",
-    "@ckeditor/ckeditor5-ui": "^11.0.0"
+    "@ckeditor/ckeditor5-core": "^12.3.0",
+    "@ckeditor/ckeditor5-engine": "^14.0.0",
+    "@ckeditor/ckeditor5-theme-lark": "^14.2.0",
+    "@ckeditor/ckeditor5-ui": "^14.0.0"
   },
   "deprecated": false,
   "description": "code block (to write longer code snippets) for CKEditor 5.",
   "devDependencies": {
-    "@ckeditor/ckeditor5-editor-classic": "^11.0.0",
-    "@ckeditor/ckeditor5-enter": "^10.1.1",
-    "@ckeditor/ckeditor5-heading": "^10.0.2",
-    "@ckeditor/ckeditor5-paragraph": "^10.0.2",
-    "@ckeditor/ckeditor5-typing": "^11.0.0",
-    "@ckeditor/ckeditor5-undo": "^10.0.2",
-    "@ckeditor/ckeditor5-utils": "^10.2.0",
-    "eslint": "^4.15.0",
-    "eslint-config-ckeditor5": "^1.0.7",
-    "husky": "^0.14.3",
-    "lint-staged": "^7.0.0"
+    "@ckeditor/ckeditor5-editor-classic": "^12.1.4",
+    "@ckeditor/ckeditor5-enter": "^11.1.0",
+    "@ckeditor/ckeditor5-heading": "^11.0.5",
+    "@ckeditor/ckeditor5-paragraph": "^11.0.5",
+    "@ckeditor/ckeditor5-typing": "^12.2.0",
+    "@ckeditor/ckeditor5-undo": "^11.0.5",
+    "@ckeditor/ckeditor5-utils": "^14.0.0",
+    "eslint": "^6.3.0",
+    "eslint-config-ckeditor5": "^2.0.0",
+    "husky": "^3.0.5",
+    "lint-staged": "^9.2.5"
   },
   "engines": {
     "node": ">=6.9.0",
