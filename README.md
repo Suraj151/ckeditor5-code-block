@@ -2,7 +2,9 @@
 pre element (to write longer code snippets) for CKEditor 5. https://ckeditor.com
 
 
-this will enable add code block feature to editor with language select feature. languages are added that supported by Javascript syntax highlighter
+this will enable add code block feature to editor with language select feature. languages are added that supported by Javascript syntax highlighter.
+additionally language select option added while inserting code first time, later it can be changed by widget edit option where we can edit language name.
+actually it adds entered language as classname to pre element.
 
 use
 
@@ -107,6 +109,7 @@ import List from '@ckeditor/ckeditor5-list/src/list';
 import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 
 import PreElement from 'ckeditor5-code-block/src/pre';
+import PreElementToolbar from 'ckeditor5-code-block/src/preelementtoolbar'; // pre element toolbar to edit its language class
 
 export default class ClassicEditor extends ClassicEditorBase {}
 
@@ -127,6 +130,7 @@ ClassicEditor.builtinPlugins = [
 	ImageUpload,
 	Link,
 	PreElement,
+  PreElementToolbar,
 	List,
 	Paragraph
 ];

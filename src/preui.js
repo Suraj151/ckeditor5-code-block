@@ -9,10 +9,8 @@ import Model from '@ckeditor/ckeditor5-ui/src/model';
 import { createDropdown, addListToDropdown } from '@ckeditor/ckeditor5-ui/src/dropdown/utils';
 import Collection from '@ckeditor/ckeditor5-utils/src/collection';
 import '../theme/pre.css';
-
+import {PRE} from './utils.js';
 import preIcon from '../theme/icons/codeblock.svg';
-
-const PRE = "pre";
 
 /**
  * The pre UI feature. It introduces the Pre button.
@@ -60,7 +58,7 @@ export default class PreUI extends Plugin {
 	_createDropdownView( editor ) {
 
 		const t = editor.t;
-		const options = editor.config.get( 'code_languages.options' );
+		const options = editor.config.get( 'preCodeBlock.languages' );
 		const defaultTitle = t( 'Choose language' );
 		const dropdownTooltip = t( 'language' );
 
@@ -88,7 +86,7 @@ export default class PreUI extends Plugin {
 			// Add the option to the collection.
 			itemDefinitions.add( def );
 
-			titles[ option.model ] = option.title;
+			titles[ option.language ] = option.title;
 		}
 
 		const dropdownView = createDropdown( editor.locale );

@@ -1,45 +1,21 @@
 {
-  "author": {
-    "name": "Suraj151"
-  },
-  "bundleDependencies": false,
-  "dependencies": {
-    "@ckeditor/ckeditor5-core": "^11.0.0",
-    "@ckeditor/ckeditor5-engine": "^10.2.0",
-    "@ckeditor/ckeditor5-theme-lark": "^11.0.0",
-    "@ckeditor/ckeditor5-ui": "^11.0.0"
-  },
-  "deprecated": false,
+  "name": "ckeditor5-code-block",
+  "version": "1.0.2",
   "description": "code block (to write longer code snippets) for CKEditor 5.",
-  "devDependencies": {
-    "@ckeditor/ckeditor5-editor-classic": "^11.0.0",
-    "@ckeditor/ckeditor5-enter": "^10.1.1",
-    "@ckeditor/ckeditor5-heading": "^10.0.2",
-    "@ckeditor/ckeditor5-paragraph": "^10.0.2",
-    "@ckeditor/ckeditor5-typing": "^11.0.0",
-    "@ckeditor/ckeditor5-undo": "^10.0.2",
-    "@ckeditor/ckeditor5-utils": "^10.2.0",
-    "eslint": "^4.15.0",
-    "eslint-config-ckeditor5": "^1.0.7",
-    "husky": "^0.14.3",
-    "lint-staged": "^7.0.0"
-  },
-  "engines": {
-    "node": ">=6.9.0",
-    "npm": ">=3.0.0"
-  },
-  "files": [
-    "src",
-    "theme"
-  ],
   "keywords": [
     "ckeditor",
     "ckeditor5",
     "ckeditor 5",
-    "ckeditor5-feature",
-    "code-block"
+    "ckeditor5-feature"
   ],
+  "author": "Suraj151",
   "license": "GPL-2.0-or-later",
-  "name": "ckeditor5-code-block",
-  "version": "1.0.1"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Suraj151/ckeditor5-code-block.git"
+  },
+  "files": [
+    "src",
+    "theme"
+  ]
 }

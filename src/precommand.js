@@ -2,17 +2,18 @@
  * @module embed/embedcommand
  */
 
+import { findOptimalInsertionPosition, toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
 import Command from '@ckeditor/ckeditor5-core/src/command';
 import Range from '@ckeditor/ckeditor5-engine/src/model/range';
 import Position from '@ckeditor/ckeditor5-engine/src/model/position';
 import Element from '@ckeditor/ckeditor5-engine/src/model/element';
+import { PRE, insertPreElement, mergeElements, _checkIfPreElement } from './utils';
 /**
  * The pre plugin command.
  *
  * @extends module:core/command~Command
  */
 
-const PRE = "pre";
 
 export default class PreCommand extends Command {
 
@@ -26,7 +27,7 @@ export default class PreCommand extends Command {
 	refresh() {
 		const model = this.editor.model;
 		const doc = model.document;
-		let _option = this._checkEnabled();
+		let _option = _checkIfPreElement(this.editor);
 
 		this.isEnabled = true;
 		this.value = _option ? _option.title:"select language";
@@ -44,139 +45,13 @@ export default class PreCommand extends Command {
 		const firstPosition = selection.getFirstPosition();
 		const lastPosition = selection.getLastPosition();
 		let isRoot = firstPosition.parent === firstPosition.root;
-		let _element = options ? options.model:PRE;
+		let _language = options ? options.language:"default";
+		let _isInsideOfPre = _checkIfPreElement(this.editor);
 
 		model.change( writer => {
-
-			let node = writer.createElement( _element );
-			let insertPosition = isRoot ? lastPosition : writer.createPositionAfter( firstPosition.parent );
-
-			if( selection.isCollapsed ){
-
-
-				if( this._checkEnabled() ){
-
-					node = writer.createElement( 'paragraph' );
-				}
-
-				writer.insert( node, insertPosition );
-				writer.setSelection( node, 0 );
-
-				if( !isRoot && firstPosition.parent.isEmpty ){
-					writer.remove( firstPosition.parent );
-				}
-
-				// if( !this._checkEnabled() ){
-
-				// 	writer.setSelectionAttribute( 'code', true );
-				// }
-
-			} else {
-
-				let range = writer.createRange(firstPosition, lastPosition);
-				let anccestor = range.getCommonAncestor();
-
-				if( this._checkEnabled() ){
-
-					node = writer.createElement( 'paragraph' );
-					// writer.removeAttribute( 'code', range );
-				}
-
-				// if( !this._checkEnabled() ){
-
-				// 	writer.setAttributes( {'code': true}, range );
-				// }
-
-				if( !range.isFlat ){
-
-					let parentInfo = mergeElements( model, writer, true );
-
-					if( parentInfo ){
-
-						range = parentInfo.range;
-						isRoot = parentInfo.isRoot;
-						insertPosition = parentInfo.position;
-						anccestor = range.getCommonAncestor();
-					}
-				}
-
-				writer.insert( node, insertPosition );
-				writer.setSelection( node, 0 );
-
-				if( range.isFlat && !isRoot ){
-
-					writer.move( range, node, 0 );
-					writer.remove( anccestor );
-				}
-
-			}
-
+			let preElement = writer.createElement( PRE, {class:_language+' pre_wrap ck-widget'} );
+			insertPreElement( preElement, writer, model );
 		} );
 	}
-
-	_checkEnabled() {
-		const doc = this.editor.model.document;
-		const positionParent = doc.selection.getLastPosition().parent;
-
-		for( const option of this.language_options){
-			if( positionParent.name == option.model ) return option;
-		}
-
-		return false;
-	}
-
-}
-
-
-function mergeElements( model, writer, _continue ){
-
-	let selection = model.document.selection;
-	let firstPosition = selection.getFirstPosition();
-	let lastPosition = selection.getLastPosition();
-	let isRoot = firstPosition.parent === firstPosition.root;
-	let insertPosition = isRoot ? lastPosition : writer.createPositionAfter( firstPosition.parent );
-
-	let range = writer.createRange(firstPosition, lastPosition);
-	let anccestor = range.getCommonAncestor();
-
-	let inRange = false;
-
-	if( !range.isFlat && _continue ){
-
-		for(const child of anccestor.getChildren()){
-			if( range.containsItem(child) ){
-			// range.containsItem does not return 1st child in range, so Position.createBefore is used
-				if( child.name == "image" ){
-					// selection.setTo( new Range(firstPosition, Position.createBefore( child )) );
-					// return { range : new Range(firstPosition, Position.createBefore( child )), position : insertPosition };
-					return	mergeElements( model, writer, false );
-				}
-
-				let _position = Position.createBefore( child );
-				writer.insert( writer.createElement( 'softBreak' ), child );
-
-				if ( ( _position.nodeBefore instanceof Element ) && ( _position.nodeAfter instanceof Element ) ) {
-
-					writer.merge(_position);
-				}else{
-					// return null;
-					return	mergeElements( model, writer, false );
-				}
-
-				inRange = true;
-
-			}
-
-		}
-
-	}
-
-
-	if( _continue && inRange ){
-
-		return	mergeElements( model, writer, true );
-	}
-
-	return { range : range, position : insertPosition, isRoot : isRoot };
 
 }
