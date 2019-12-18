@@ -168,7 +168,40 @@ ClassicEditor.defaultConfig = {
 ```
 After build you can see code block pre element icon in classic editor top bars.
 
-**Custom options:**
+**Custom Options**
+
+you can now define language select/edit option for code block. just add this options in editor config as shown in below example. custom tab in code edit added as no of white spaces. you can adjust this from same config option as below.
+
+
+```js
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+
+// Or using the CommonJS version:
+// const ClassicEditor = require( '@ckeditor/ckeditor5-build-classic' );
+
+var _code_languages = ["auto","c","cs","cpp","html","xml","css","javascript","python","sql","php","perl","ruby","markdown"];
+
+ClassicEditor
+	.create( document.querySelector( '#editor' ), {
+	
+        preCodeBlock :{
+		languages: _code_languages.map( _language => {return{
+			language: _language,
+			title: _language=="cs"?"c#":_language
+		};}),
+		toolbar: [ 'EditLanguage', '|', 'SelectLanguage' ],
+		noOfSpaceForTabKey: 4
+	}
+	
+	} )
+	.then( editor => {
+		window.editor = editor;
+	} )
+	.catch( err => {
+		console.error( err.stack );
+	} );
+```
+
 
 Help to imporove this as i am new to this platform.
 
