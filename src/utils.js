@@ -140,6 +140,36 @@ export function _checkIfPreElement( editor ) {
 	return positionParent && positionParent.name == PRE;
 }
 
+export function enableSpanElementInPre( editor ) {
+
+	const schema = editor.model.schema;
+	const conversion = editor.conversion;
+
+	schema.register( 'span', {
+			allowWhere: '$text',
+			allowContentOf: '$block',
+			isInline: true,
+			isObject: true,
+			allowAttributes: [ 'class' ]
+	} );
+
+	schema.extend( 'span', { allowIn: PRE } );
+	schema.extend( '$text', { allowIn: 'span' } );
+
+
+	conversion.for( 'downcast' ).elementToElement( {
+		model: 'span',
+		view: ( modelElement, viewWriter ) => viewWriter.createContainerElement( 'span', { class: modelElement.getAttribute( 'class' ) } )
+	} );
+
+	conversion.for( 'upcast' ).elementToElement( {
+		view: 'span',
+		model: ( viewElement, modelWriter ) => modelWriter.createElement( 'span', { class: viewElement.getAttribute( 'class' ) } )
+	} );
+
+}
+
+
 // export function mergeElements( model, writer, _continue ){
 //
 // 	let selection = model.document.selection;

@@ -3,13 +3,16 @@
  */
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import PreCommand from './precommand';
+import UpcastWriter from '@ckeditor/ckeditor5-engine/src/view/upcastwriter';
 
 import {
 	PRE,
 	_checkIfPreElement,
 	modelToViewAttributeConverter,
+	isPreElement,
 	toPreWidget,
 	toPreWidgetEditable,
+	enableSpanElementInPre
 } from './utils';
 
 const keyCodes = {
@@ -47,6 +50,8 @@ export default class PreEditing extends Plugin {
 			isObject: true,
 			allowAttributes:['class']
 		} );
+
+		schema.extend( 'paragraph', { allowIn: PRE } );
 		schema.extend( '$text', { allowIn: PRE } );
 
 		schema.on( 'checkAttribute', ( evt, args ) => {
@@ -85,7 +90,7 @@ export default class PreEditing extends Plugin {
 		// Create pre commands.
 		editor.commands.add( PRE, new PreCommand( editor, options ) );
 
-		hljs.configure({useBR: true});
+		enableSpanElementInPre(editor);
 	}
 
 	afterInit() {
@@ -127,6 +132,27 @@ export default class PreEditing extends Plugin {
 			}
 
 		} );
+
+
+		const upWriter = new UpcastWriter();
+		editor.plugins.get( 'Clipboard' ).on( 'inputTransformation', ( evt, data ) => {
+
+			if( data && data.content && data.content.childCount == 1 && isPreElement( data.content.getChild(0) ) && _checkIfPreElement(editor) ){
+
+				const preElement = data.content.getChild(0);
+				if( preElement.childCount )	{
+
+					data.content = upWriter.createDocumentFragment( [
+	            upWriter.createElement(
+	                'p',
+	                {},
+	                preElement._children
+	            )
+	        ] );
+				}
+			}
+
+		}, { priority: 'highest' } );
 
 	}
 
