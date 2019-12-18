@@ -171,8 +171,8 @@ export default class PreAttributesFormView extends View {
 		const t = this.locale.t;
 		const labeledInput = new LabeledInputView( this.locale, InputTextView );
 
-		labeledInput.label = t( 'Code Block custom class' );
-		labeledInput.inputView.placeholder = t( 'define class name here' );
+		labeledInput.label = t( 'Code Block language class' );
+		labeledInput.inputView.placeholder = t( 'type language name here' );
 
 		return labeledInput;
 	}

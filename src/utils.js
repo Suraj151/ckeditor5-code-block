@@ -12,22 +12,6 @@ import first from '@ckeditor/ckeditor5-utils/src/first';
 
 export const preElementSymbol = Symbol( 'isPreElement' );
 export const PRE = "pre";
-export const _code_languages = [
-		"default",
-		"c",
-		"cs",
-		"cpp",
-		"html",
-		"xml",
-		"css",
-		"javascript",
-		"python",
-		"sql",
-		"php",
-		"perl",
-		"ruby",
-		"markdown"
-];
 
 export function toPreWidget( viewElement, writer, label ) {
 
@@ -154,10 +138,6 @@ export function _checkIfPreElement( editor ) {
 	const doc = editor.model.document;
 	const positionParent = doc.selection.getLastPosition().parent;
 	return positionParent && positionParent.name == PRE;
-}
-
-export function _getCodeLanguages() {
-	return _code_languages;
 }
 
 // export function mergeElements( model, writer, _continue ){

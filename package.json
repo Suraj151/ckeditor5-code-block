@@ -1,6 +1,6 @@
 {
   "name": "ckeditor5-code-block",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "code block (to write longer code snippets) for CKEditor 5.",
   "keywords": [
     "ckeditor",

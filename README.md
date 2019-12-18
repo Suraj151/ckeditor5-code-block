@@ -168,7 +168,7 @@ ClassicEditor.defaultConfig = {
 ```
 After build you can see code block pre element icon in classic editor top bars.
 
-**Note:** click on icon to insert/leave code block in your editor.
+**Custom options:**
 
 Help to imporove this as i am new to this platform.
 

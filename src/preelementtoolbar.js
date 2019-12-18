@@ -13,19 +13,19 @@ export default class PreElementToolbar extends Plugin {
 		return 'PreElementToolbar';
 	}
 
-	init() {
-		this.editor.config.define( PRE, {
-				toolbar: [ 'preAttributes' ]
-		} );
-	}
+	// init() {
+	// 	this.editor.config.define( PRE, {
+	// 			toolbar: [ 'EditLanguage', '|', 'SelectLanguage' ]
+	// 	} );
+	// }
 
 	afterInit() {
 		const editor = this.editor;
 		const widgetToolbarRepository = editor.plugins.get( WidgetToolbarRepository );
 
 		widgetToolbarRepository.register( PRE, {
-			ariaLabel: editor.t( 'pre toolbar' ),
-			items: editor.config.get( 'pre.toolbar' ) || [],
+			ariaLabel: editor.t( 'preCodeBlock toolbar' ),
+			items: editor.config.get( 'preCodeBlock.toolbar' ) || [],
 			getRelatedElement: getPreElementWidgetSelected
 		} );
 	}

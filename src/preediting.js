@@ -7,7 +7,6 @@ import PreCommand from './precommand';
 import {
 	PRE,
 	_checkIfPreElement,
-	_getCodeLanguages,
 	modelToViewAttributeConverter,
 	toPreWidget,
 	toPreWidgetEditable,
@@ -27,21 +26,11 @@ const keyCodes = {
 
 const _upcast_with = {styles: { 'word-wrap': 'break-word'}};
 
-const _code_languages = _getCodeLanguages();
-
 export default class PreEditing extends Plugin {
 
 	constructor( editor ) {
 		super( editor );
-
-		editor.config.define( 'preCodeBlock', {
-			languages: _code_languages.map( _language => {return{
-				language: _language,
-				title: _language=="cs"?"c#":_language
-			};})
-		} );
 	}
-
 
 	init() {
 		const editor = this.editor;
@@ -49,7 +38,7 @@ export default class PreEditing extends Plugin {
 		const t = editor.t;
 		const conversion = editor.conversion;
 		const mapper = editor.editing.mapper;
-		const options = editor.config.get( 'preCodeBlock.languages' );
+		const options = editor.config.get( 'preCodeBlock.languages' ) || [];
 
 		schema.register( PRE, {
 			allowWhere: '$block',
@@ -58,7 +47,6 @@ export default class PreEditing extends Plugin {
 			isObject: true,
 			allowAttributes:['class']
 		} );
-
 		schema.extend( '$text', { allowIn: PRE } );
 
 		schema.on( 'checkAttribute', ( evt, args ) => {
@@ -103,6 +91,7 @@ export default class PreEditing extends Plugin {
 	afterInit() {
 		const editor = this.editor;
 		const mapper = editor.editing.mapper;
+		const options = editor.config.get( 'preCodeBlock' );
 
 		this.listenTo( editor.editing.view.document, 'enter', ( evt, data ) => {
 			if( _checkIfPreElement(editor) ){
@@ -130,7 +119,9 @@ export default class PreEditing extends Plugin {
 			// 	}
 			// }
 			if ( (data.keyCode == keyCodes.tab) && _checkIfPreElement(editor) ) {
-				editor.execute( 'input', { text: "    " } );
+
+				var str = new Array( ( options&&options.noOfSpaceForTabKey?options.noOfSpaceForTabKey:4 ) + 1).join(' ');
+				editor.execute( 'input', { text: str } );
 				data.preventDefault();
 				evt.stop();
 			}
