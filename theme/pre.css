@@ -1,7 +1,32 @@
-.ck-code-languages-dropdown, .ck-code-languages-dropdown div{
+.ck-code-languages-dropdown, .ck-code-languages-dropdown > div{
 	width: auto;
 }
 
-.ck-code-languages-dropdown div ul li{
+.ck-code-languages-dropdown > div > ul {
+	max-height: 350px;
+	overflow: auto;
+}
+
+.ck-code-languages-dropdown > div > ul > li{
 	min-width: auto !important;
+}
+
+/* .ck.ck-reset.ck-dropdown__panel.ck-dropdown__panel_nw{
+	max-height: 350px;
+	overflow: auto;
+} */
+
+.preblock-pre{
+	width: 100%;
+	max-width: 100%;
+	margin: 1em auto;
+	display: table;
+}
+
+.preblock-pre > pre {
+	margin: 8px 0px !important;
+}
+
+.pre_wrap{
+	min-height: 40px;
 }

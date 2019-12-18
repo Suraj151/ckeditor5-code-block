@@ -2,7 +2,9 @@
 pre element (to write longer code snippets) for CKEditor 5. https://ckeditor.com
 
 
-this will enable add code block feature to editor with language select feature. languages are added that supported by Javascript syntax highlighter
+this will enable add code block feature to editor with language select feature. languages are added that supported by Javascript syntax highlighter.
+additionally language select option added while inserting code first time, later it can be changed by widget edit option where we can edit language name.
+actually it adds entered language as classname to pre element.
 
 use
 
@@ -107,6 +109,7 @@ import List from '@ckeditor/ckeditor5-list/src/list';
 import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 
 import PreElement from 'ckeditor5-code-block/src/pre';
+import PreElementToolbar from 'ckeditor5-code-block/src/preelementtoolbar'; // pre element toolbar to edit its language class
 
 export default class ClassicEditor extends ClassicEditorBase {}
 
@@ -127,6 +130,7 @@ ClassicEditor.builtinPlugins = [
 	ImageUpload,
 	Link,
 	PreElement,
+  PreElementToolbar,
 	List,
 	Paragraph
 ];
@@ -164,7 +168,40 @@ ClassicEditor.defaultConfig = {
 ```
 After build you can see code block pre element icon in classic editor top bars.
 
-**Note:** click on icon to insert/leave code block in your editor.
+**Custom Options**
+
+you can now define language select/edit option for code block. just add this options in editor config as shown in below example. custom tab in code edit added as no of white spaces. you can adjust this from same config option as below.
+
+
+```js
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+
+// Or using the CommonJS version:
+// const ClassicEditor = require( '@ckeditor/ckeditor5-build-classic' );
+
+var _code_languages = ["auto","c","cs","cpp","html","xml","css","javascript","python","sql","php","perl","ruby","markdown"];
+
+ClassicEditor
+	.create( document.querySelector( '#editor' ), {
+	
+        preCodeBlock :{
+		languages: _code_languages.map( _language => {return{
+			language: _language,
+			title: _language=="cs"?"c#":_language
+		};}),
+		toolbar: [ 'EditLanguage', '|', 'SelectLanguage' ],
+		noOfSpaceForTabKey: 4
+	}
+	
+	} )
+	.then( editor => {
+		window.editor = editor;
+	} )
+	.catch( err => {
+		console.error( err.stack );
+	} );
+```
+
 
 Help to imporove this as i am new to this platform.
 

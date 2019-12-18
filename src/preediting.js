@@ -1,15 +1,24 @@
 /**
  * @module prePlugin
  */
-
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import PreCommand from './precommand';
+import UpcastWriter from '@ckeditor/ckeditor5-engine/src/view/upcastwriter';
 
-const PRE = "pre";
+import {
+	PRE,
+	_checkIfPreElement,
+	modelToViewAttributeConverter,
+	isPreElement,
+	toPreWidget,
+	toPreWidgetEditable,
+	enableSpanElementInPre
+} from './utils';
 
 const keyCodes = {
 	backspace: 8,
 	delete: 46,
+	tab: 9,
 	// ctrl: 0x110000,
 	// // Has the same code as ctrl, because their behaviour should be unified across the editor.
 	// // See http://ckeditor.github.io/editor-recommendations/general-policies#ctrl-vs-cmd
@@ -18,130 +27,148 @@ const keyCodes = {
 	// alt: 0x440000
 };
 
-
+const _upcast_with = {styles: { 'word-wrap': 'break-word'}};
 
 export default class PreEditing extends Plugin {
 
 	constructor( editor ) {
 		super( editor );
-
-		editor.config.define( 'code_languages', {
-			options: [
-				{ model: PRE, view: {name:PRE, classes:"nohighlight"}, title: 'default', upcastAlso: {styles: { 'word-wrap': 'break-word'}} },
-				{ model: (PRE+"_c"), view: {name:PRE, classes:"c"}, title: 'c', upcastAlso: {styles: { 'word-wrap': 'break-word'}} },
-				{ model: (PRE+"_cs"), view: {name:PRE, classes:"cs"}, title: 'c#', upcastAlso: {styles: { 'word-wrap': 'break-word'}} },
-				{ model: (PRE+"_cpp"), view: {name:PRE, classes:"cpp"}, title: 'cpp', upcastAlso: {styles: { 'word-wrap': 'break-word'}} },
-				{ model: (PRE+"_html"), view: {name:PRE, classes:"html"}, title: 'html', upcastAlso: {styles: { 'word-wrap': 'break-word'}} },
-				{ model: (PRE+"_xml"), view: {name:PRE, classes:"xml"}, title: 'xml', upcastAlso: {styles: { 'word-wrap': 'break-word'}} },
-				{ model: (PRE+"_css"), view: {name:PRE, classes:"css"}, title: 'css', upcastAlso: {styles: { 'word-wrap': 'break-word'}} },
-				{ model: (PRE+"_javascript"), view: {name:PRE, classes:"javascript"}, title: 'javascript', upcastAlso: {styles: { 'word-wrap': 'break-word'}} },
-				{ model: (PRE+"_python"), view: {name:PRE, classes:"python"}, title: 'python', upcastAlso: {styles: { 'word-wrap': 'break-word'}} },
-				{ model: (PRE+"_sql"), view: {name:PRE, classes:"sql"}, title: 'sql', upcastAlso: {styles: { 'word-wrap': 'break-word'}} },
-				{ model: (PRE+"_php"), view: {name:PRE, classes:"php"}, title: 'php', upcastAlso: {styles: { 'word-wrap': 'break-word'}} },
-				{ model: (PRE+"_perl"), view: {name:PRE, classes:"perl"}, title: 'perl', upcastAlso: {styles: { 'word-wrap': 'break-word'}} },
-				{ model: (PRE+"_ruby"), view: {name:PRE, classes:"ruby"}, title: 'ruby', upcastAlso: {styles: { 'word-wrap': 'break-word'}} },
-				{ model: (PRE+"_markdown"), view: {name:PRE, classes:"markdown"}, title: 'markdown', upcastAlso: {styles: { 'word-wrap': 'break-word'}} }
-			]
-		} );
 	}
-
 
 	init() {
 		const editor = this.editor;
 		const schema = editor.model.schema;
+		const t = editor.t;
 		const conversion = editor.conversion;
-		const options = editor.config.get( 'code_languages.options' );
+		const mapper = editor.editing.mapper;
+		const options = editor.config.get( 'preCodeBlock.languages' ) || [];
 
-		const preElements = [];
+		schema.register( PRE, {
+			allowWhere: '$block',
+	    allowContentOf: '$block',
+			isBlock: true,
+			isObject: true,
+			allowAttributes:['class']
+		} );
 
+		schema.extend( 'paragraph', { allowIn: PRE } );
+		schema.extend( '$text', { allowIn: PRE } );
 
-		for ( const option of options ) {
+		schema.on( 'checkAttribute', ( evt, args ) => {
+		    const context = args[ 0 ];
+		    const attributeName = args[ 1 ];
 
-			schema.register( option.model, {
-				allowWhere: '$block',
-				isBlock: true,
-				isObject:true,
-				allowAttributes:['class']
-			} );
+		    if ( context.endsWith( PRE+' $text' ) && (
+		    	attributeName == 'bold' ||
+		    	attributeName == 'italic'
+		    ) ) {
+		        // Prevent next listeners from being called.
+		        evt.stop();
+		        // Set the checkAttribute()'s return value.
+		        evt.return = false;
+		    }
+		}, { priority: 'high' } );
 
-			schema.extend( '$text', { allowIn: option.model } );
+		conversion.for( 'dataDowncast' ).elementToElement( {
+			model: PRE,
+			view: ( modelElement, viewWriter ) => createPreViewElement( modelElement, viewWriter, editor, false ),
+			upcastAlso: _upcast_with
+		} );
+		conversion.for( 'editingDowncast' ).elementToElement( {
+			model: PRE,
+			view: ( modelElement, viewWriter ) => createPreViewElement( modelElement, viewWriter, editor, true ),
+			upcastAlso: _upcast_with
+		} );
 
-			schema.on( 'checkAttribute', ( evt, args ) => {
-			    const context = args[ 0 ];
-			    const attributeName = args[ 1 ];
+		conversion.for( 'downcast' ).add( modelToViewAttributeConverter( 'class' ) );
 
-			    if ( context.endsWith( option.model+' $text' ) && (
-			    	attributeName == 'bold' ||
-			    	attributeName == 'italic'
-			    ) ) {
-			        // Prevent next listeners from being called.
-			        evt.stop();
-			        // Set the checkAttribute()'s return value.
-			        evt.return = false;
-			    }
-			}, { priority: 'high' } );
-
-
-			conversion.elementToElement( option );
-
-			preElements.push( option );
-
-		}
+		conversion.for( 'upcast' ).elementToElement( {
+			view: PRE,
+			model: ( viewElement, modelWriter ) => modelWriter.createElement( PRE, { class: viewElement.getAttribute( 'class' ) } )
+		} );
 
 		// Create pre commands.
-		editor.commands.add( PRE, new PreCommand( editor, preElements ) );
+		editor.commands.add( PRE, new PreCommand( editor, options ) );
 
+		enableSpanElementInPre(editor);
 	}
 
 	afterInit() {
 		const editor = this.editor;
+		const mapper = editor.editing.mapper;
+		const options = editor.config.get( 'preCodeBlock' );
 
-		// Overwrite default Enter key behavior.
 		this.listenTo( editor.editing.view.document, 'enter', ( evt, data ) => {
-			const doc = editor.model.document;
-			const position = doc.selection.getLastPosition();
-			const positionParent = position.parent;
-			const options = editor.config.get( 'code_languages.options' );
-
-			for( const option of options){
-				if( positionParent.name == option.model ){
-					// editor.execute( 'input', { text: "\r\n" } );
-					editor.execute( 'shiftEnter');
-
-					data.preventDefault();
-					evt.stop();
-					break;
-				}
+			if( _checkIfPreElement(editor) ){
+				editor.execute( 'shiftEnter');
+				data.preventDefault();
+				evt.stop();
 			}
-
 		} );
 
 		this.listenTo( editor.editing.view.document, 'keydown', ( evt, data ) => {
 			const doc = editor.model.document;
 			const position = doc.selection.getLastPosition();
 			const positionParent = position.parent;
-			const options = editor.config.get( 'code_languages.options' );
 
-			if ( (data.keyCode == keyCodes.delete || data.keyCode == keyCodes.backspace) ) {
+			// if ( (data.keyCode == keyCodes.delete || data.keyCode == keyCodes.backspace) ) {
+			//
+			// 	if( positionParent.name == PRE && positionParent.isEmpty && positionParent.childCount <= 0 ){
+			//
+			// 		editor.model.change( writer => {
+			// 		    writer.remove( positionParent );
+			// 				// writer.remove( positionParent.parent );
+			// 		} );
+			// 		data.preventDefault();
+			// 		evt.stop();
+			// 	}
+			// }
+			if ( (data.keyCode == keyCodes.tab) && _checkIfPreElement(editor) ) {
 
-				for( const option of options){
-					if( positionParent.name == option.model && positionParent.isEmpty && positionParent.childCount <= 0 ){
-
-						editor.model.change( writer => {
-						    writer.remove( positionParent );
-						} );
-						data.preventDefault();
-						evt.stop();
-						break;
-					}
-				}
-
+				var str = new Array( ( options&&options.noOfSpaceForTabKey?options.noOfSpaceForTabKey:4 ) + 1).join(' ');
+				editor.execute( 'input', { text: str } );
+				data.preventDefault();
+				evt.stop();
 			}
 
 		} );
 
 
+		const upWriter = new UpcastWriter();
+		editor.plugins.get( 'Clipboard' ).on( 'inputTransformation', ( evt, data ) => {
+
+			if( data && data.content && data.content.childCount == 1 && isPreElement( data.content.getChild(0) ) && _checkIfPreElement(editor) ){
+
+				const preElement = data.content.getChild(0);
+				if( preElement.childCount )	{
+
+					data.content = upWriter.createDocumentFragment( [
+	            upWriter.createElement(
+	                'p',
+	                {},
+	                preElement._children
+	            )
+	        ] );
+				}
+			}
+
+		}, { priority: 'highest' } );
+
 	}
 
+}
 
+function createPreViewElement( modelElement, viewWriter, editor, toWdgetEditable ) {
+
+	if( viewWriter ){
+
+		if( !toWdgetEditable ){
+
+			return toPreWidget( viewWriter.createContainerElement( PRE, {class : modelElement.getAttribute("class")} ), viewWriter, editor.t( 'pre widget' ) );
+		}else{
+
+			const preWidget = toPreWidget( viewWriter.createEditableElement( PRE, {class : modelElement.getAttribute("class")} ), viewWriter, editor.t( 'pre editable widget' ) );
+			return toPreWidgetEditable( preWidget, viewWriter, editor.t( 'pre widget' ) );
+		}
+	}return '';
 }
