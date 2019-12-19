@@ -27,29 +27,37 @@ export function toPreWidgetEditable( viewElement, writer, label ) {
 
 
 export function isPreElementWidget( viewElement ) {
-	return !!( viewElement.getCustomProperty( preElementSymbol ) && isWidget( viewElement ));
+
+	return !!( viewElement && viewElement.hasOwnProperty('getCustomProperty') && viewElement.getCustomProperty( preElementSymbol ) && isWidget( viewElement ));
 }
 
 export function isPreElement( modelElement ) {
+
 	return !!(modelElement && modelElement.is(PRE));
+}
+
+export function getIfInsideOfPreElement( selection ) {
+
+	const viewElement = selection.getSelectedElement();
+	if ( viewElement && isPreElement( viewElement ) ) {
+		return viewElement;
+	}
+	const lastPosition = selection.getLastPosition();
+	//we will iterate through parent nest upto 5 limit
+	for (var i = 0, parent=lastPosition?lastPosition.parent:null; i < 5 && parent && parent.name!="$root"; i++, parent = parent.parent ) {
+		if ( isPreElement(parent) ) return parent;
+	}
+	return null;
 }
 
 export function getPreElementWidgetSelected( selection ) {
 
 	const viewElement = selection.getSelectedElement();
-	if ( viewElement && isPreElementWidget( viewElement ) ) {
+	if ( isPreElementWidget( viewElement ) ) {
 		return viewElement;
 	}
-	// const viewElement = selection.getSelectedElement();
-	// if ( viewElement && isPreElement( viewElement ) ) {
-	// 	return viewElement;
-	// }
-	// const lastPosition = selection.getLastPosition();
-	// //we will iterate through parent nest upto 5 limit
-	// for (var i = 0, parent=lastPosition.parent; i < 5 && parent && parent.name!="$root"; i++, parent = parent.parent ) {
-	// 	if ( isPreElement(parent) ) return parent;
-	// }
-	return null;
+	return getIfInsideOfPreElement(selection);
+	// return null;
 }
 
 export function isPreElementWidgetSelected( selection ) {

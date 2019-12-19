@@ -42,9 +42,6 @@ export default class PreCommand extends Command {
 	execute( options ) {
 		const model = this.editor.model;
 		const selection = model.document.selection;
-		const firstPosition = selection.getFirstPosition();
-		const lastPosition = selection.getLastPosition();
-		let isRoot = firstPosition.parent === firstPosition.root;
 		let _language = options&&options.language?options.language:"auto";
 		let _isInsideOfPre = _checkIfPreElement(this.editor);
 

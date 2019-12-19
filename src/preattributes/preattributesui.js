@@ -6,7 +6,7 @@ import ContextualBalloon from '@ckeditor/ckeditor5-ui/src/panel/balloon/contextu
 import Model from '@ckeditor/ckeditor5-ui/src/model';
 import { createDropdown, addListToDropdown } from '@ckeditor/ckeditor5-ui/src/dropdown/utils';
 import { repositionContextualBalloon, getBalloonPositionData } from '../utils';
-import { isPreElementWidgetSelected } from '../utils';
+import { isPreElementWidgetSelected, isPreElement } from '../utils';
 import classAttributesEditIcon from '@ckeditor/ckeditor5-core/theme/icons/pencil.svg';
 import classAttributesSelectIcon from '@ckeditor/ckeditor5-core/theme/icons/three-vertical-dots.svg';
 import Collection from '@ckeditor/ckeditor5-utils/src/collection';
@@ -101,6 +101,20 @@ export default class PreAttributesUI extends Plugin {
 			this._removeDropDownView();
 		} );
 
+		// Close the form on Esc key press.
+		editor.keystrokes.set( 'Esc', ( data, cancel ) => {
+			this._hideUI();
+			cancel();
+		} );
+
+		// Close on click outside of balloon panel element.
+		clickOutsideHandler( {
+			emitter: dropdownView,
+			activator: () => this._isDropDownViewInPanel,
+			contextElements: [ this._balloon.view.element ],
+			callback: () => this._hideUI()
+		} );
+
 		return dropdownView;
 	}
 
@@ -147,9 +161,8 @@ export default class PreAttributesUI extends Plugin {
 
 	_createForm() {
 		const editor = this.editor;
+		const model = editor.model;
 		const view = editor.editing.view;
-		const viewDocument = view.document;
-
 		/**
 		 * The contextual balloon plugin instance.
 		 *
@@ -183,7 +196,7 @@ export default class PreAttributesUI extends Plugin {
 
 		// Reposition the balloon or hide the form if an preblock widget is no longer selected.
 		this.listenTo( editor.ui, 'update', () => {
-			if ( !isPreElementWidgetSelected( viewDocument.selection ) ) {
+			if ( !isPreElementWidgetSelected( model.document.selection ) ) {
 				this._hideUI();
 			} else if ( this._isEditFormVisible ) {
 				repositionContextualBalloon( editor );
@@ -234,6 +247,8 @@ export default class PreAttributesUI extends Plugin {
 
 		labeledInput.value = labeledInput.inputView.element.value = command.value || '';
 
+		this._setSelectionToPreElement();
+
 		this._form.labeledInput.select();
 	}
 
@@ -261,6 +276,7 @@ export default class PreAttributesUI extends Plugin {
 	_addDropDownView() {
 
 		const editor = this.editor;
+
 		if ( this._isDropDownViewInPanel ) {
 			return;
 		}
@@ -268,6 +284,8 @@ export default class PreAttributesUI extends Plugin {
 			view: this.dropDownView,
 			position: getBalloonPositionData(editor)
 		} );
+
+		this._setSelectionToPreElement();
 	}
 
 	/**
@@ -278,6 +296,21 @@ export default class PreAttributesUI extends Plugin {
 			this._balloon.remove( this.dropDownView );
 
 			this.editor.editing.view.focus();
+		}
+	}
+
+	/**
+	 * Removes the dropDownView from the _balloon.
+	 */
+	_setSelectionToPreElement() {
+
+		const editor = this.editor;
+		const command = editor.commands.get( 'preAttributes' );
+
+		if( isPreElement( command.preElement ) ){
+			editor.model.change( writer => {
+					writer.setSelection( command.preElement, 'on' );
+			} );
 		}
 	}
 
