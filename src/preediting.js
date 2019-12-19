@@ -7,9 +7,11 @@ import UpcastWriter from '@ckeditor/ckeditor5-engine/src/view/upcastwriter';
 
 import {
 	PRE,
-	_checkIfPreElement,
+	getIfInsideOfPreElement,
+	checkIfInsideOfPreElement,
 	modelToViewAttributeConverter,
 	isPreElement,
+	isSpanElement,
 	toPreWidget,
 	toPreWidgetEditable,
 	enableSpanElementInPre
@@ -84,13 +86,13 @@ export default class PreEditing extends Plugin {
 
 		conversion.for( 'upcast' ).elementToElement( {
 			view: PRE,
-			model: ( viewElement, modelWriter ) => modelWriter.createElement( PRE, { class: viewElement.getAttribute( 'class' ) } )
+			model: ( viewElement, modelWriter ) => modelWriter.createElement( PRE, viewElement.getAttributes() )
 		} );
 
 		// Create pre commands.
 		editor.commands.add( PRE, new PreCommand( editor, options ) );
 
-		enableSpanElementInPre(editor);
+		// enableSpanElementInPre(editor);
 	}
 
 	afterInit() {
@@ -98,32 +100,65 @@ export default class PreEditing extends Plugin {
 		const mapper = editor.editing.mapper;
 		const options = editor.config.get( 'preCodeBlock' );
 
+		editor.keystrokes.set( 'Ctrl+ArrowUp', ( keyEvtData, cancel ) => {
+
+				const preElement = getIfInsideOfPreElement(editor.model.document.selection);
+				if( preElement ){
+					editor.model.change( writer => {
+							let previousSibling = preElement.previousSibling;
+							if( !previousSibling ){
+								previousSibling = writer.createElement( 'paragraph' );
+								writer.insert( previousSibling, writer.createPositionBefore( preElement ) );
+							}
+							writer.setSelection( previousSibling, 'in' );
+					} );
+					cancel();
+				}
+		}, { priority: 'highest' } );
+
+		editor.keystrokes.set( 'Ctrl+ArrowDown', ( keyEvtData, cancel ) => {
+
+				const preElement = getIfInsideOfPreElement(editor.model.document.selection);
+				if( preElement ){
+					editor.model.change( writer => {
+							let nextSibling = preElement.nextSibling;
+							if( !nextSibling ){
+								nextSibling = writer.createElement( 'paragraph' );
+								writer.insert( nextSibling, writer.createPositionAfter( preElement ) );
+							}
+							writer.setSelection( nextSibling, 'in' );
+					} );
+					cancel();
+				}
+		}, { priority: 'highest' } );
+
 		this.listenTo( editor.editing.view.document, 'enter', ( evt, data ) => {
-			if( _checkIfPreElement(editor) ){
+
+			const selection = editor.model.document.selection;
+			if( data && data.domEvent && !data.domEvent.ctrlKey && checkIfInsideOfPreElement(editor) ){
 				editor.execute( 'shiftEnter');
 				data.preventDefault();
 				evt.stop();
 			}
-		} );
+		}, { priority: 'highest' } );
 
 		this.listenTo( editor.editing.view.document, 'keydown', ( evt, data ) => {
-			const doc = editor.model.document;
-			const position = doc.selection.getLastPosition();
-			const positionParent = position.parent;
 
-			// if ( (data.keyCode == keyCodes.delete || data.keyCode == keyCodes.backspace) ) {
+			// const selection = editor.model.document.selection;
+			// if ( (data.keyCode == keyCodes.delete || data.keyCode == keyCodes.backspace) && checkIfInsideOfPreElement(editor) ) {
 			//
-			// 	if( positionParent.name == PRE && positionParent.isEmpty && positionParent.childCount <= 0 ){
+			// 	const _element = selection.getSelectedElement()?selection.getSelectedElement():selection.getLastPosition()?selection.getLastPosition().parent:null;
+			// 	if( isSpanElement( _element ) ){
 			//
 			// 		editor.model.change( writer => {
-			// 		    writer.remove( positionParent );
-			// 				// writer.remove( positionParent.parent );
+			// 		    writer.remove( _element );
 			// 		} );
 			// 		data.preventDefault();
 			// 		evt.stop();
 			// 	}
 			// }
-			if ( (data.keyCode == keyCodes.tab) && _checkIfPreElement(editor) ) {
+
+			if ( (data.keyCode == keyCodes.tab) && checkIfInsideOfPreElement(editor) ) {
 
 				var str = new Array( ( options&&options.noOfSpaceForTabKey?options.noOfSpaceForTabKey:4 ) + 1).join(' ');
 				editor.execute( 'input', { text: str } );
@@ -137,7 +172,7 @@ export default class PreEditing extends Plugin {
 		const upWriter = new UpcastWriter();
 		editor.plugins.get( 'Clipboard' ).on( 'inputTransformation', ( evt, data ) => {
 
-			if( data && data.content && data.content.childCount == 1 && isPreElement( data.content.getChild(0) ) && _checkIfPreElement(editor) ){
+			if( data && data.content && data.content.childCount == 1 && isPreElement( data.content.getChild(0) ) && checkIfInsideOfPreElement(editor) ){
 
 				const preElement = data.content.getChild(0);
 				if( preElement.childCount )	{
@@ -164,10 +199,10 @@ function createPreViewElement( modelElement, viewWriter, editor, toWdgetEditable
 
 		if( !toWdgetEditable ){
 
-			return toPreWidget( viewWriter.createContainerElement( PRE, {class : modelElement.getAttribute("class")} ), viewWriter, editor.t( 'pre widget' ) );
+			return toPreWidget( viewWriter.createContainerElement( PRE, modelElement.getAttributes() ), viewWriter, editor.t( 'pre widget' ) );
 		}else{
 
-			const preWidget = toPreWidget( viewWriter.createEditableElement( PRE, {class : modelElement.getAttribute("class")} ), viewWriter, editor.t( 'pre editable widget' ) );
+			const preWidget = toPreWidget( viewWriter.createEditableElement( PRE, modelElement.getAttributes() ), viewWriter, editor.t( 'pre editable widget' ) );
 			return toPreWidgetEditable( preWidget, viewWriter, editor.t( 'pre widget' ) );
 		}
 	}return '';

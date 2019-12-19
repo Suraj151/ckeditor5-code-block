@@ -3,8 +3,7 @@ pre element (to write longer code snippets) for CKEditor 5. https://ckeditor.com
 
 
 this will enable add code block feature to editor with language select feature. languages are added that supported by Javascript syntax highlighter.
-additionally language select option added while inserting code first time, later it can be changed by widget edit option where we can edit language name.
-actually it adds entered language as classname to pre element.
+additionally edit option is provided where we can edit language name. actually it adds entered language as classname to pre element.
 
 use
 
@@ -170,7 +169,7 @@ After build you can see code block pre element icon in classic editor top bars.
 
 **Custom Options**
 
-you can now define language select/edit option for code block. just add this options in editor config as shown in below example. custom tab in code edit added as no of white spaces. you can adjust this from same config option as below.
+you can define language select/edit option for code block. just add this options in editor config as shown in below example. custom tab in code edit added as no of white spaces. you can adjust this from same config option as below.
 
 
 ```js
@@ -183,7 +182,7 @@ var _code_languages = ["auto","c","cs","cpp","html","xml","css","javascript","py
 
 ClassicEditor
 	.create( document.querySelector( '#editor' ), {
-	
+
         preCodeBlock :{
 		languages: _code_languages.map( _language => {return{
 			language: _language,
@@ -192,7 +191,7 @@ ClassicEditor
 		toolbar: [ 'EditLanguage', '|', 'SelectLanguage' ],
 		noOfSpaceForTabKey: 4
 	}
-	
+
 	} )
 	.then( editor => {
 		window.editor = editor;
@@ -202,6 +201,8 @@ ClassicEditor
 	} );
 ```
 
+**key pairs**
+added ctrl+uparrow and ctrl+downarrow to get outside when inside of codeblock.
 
 Help to imporove this as i am new to this platform.
 

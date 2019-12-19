@@ -48,7 +48,7 @@ export default class PreUI extends Plugin {
 			} );
 
 			_button.bind( 'isEnabled' ).to( command, 'isEnabled' );
-			_button.bind( 'isOn' ).to( command, 'value', value => value != "select language" );
+			_button.bind( 'isOn' ).to( command, 'value' );
 
 			// Execute command.
 			this.listenTo( _button, 'execute', () => editor.execute( PRE, {

@@ -7,7 +7,7 @@ import Command from '@ckeditor/ckeditor5-core/src/command';
 import Range from '@ckeditor/ckeditor5-engine/src/model/range';
 import Position from '@ckeditor/ckeditor5-engine/src/model/position';
 import Element from '@ckeditor/ckeditor5-engine/src/model/element';
-import { PRE, insertPreElement, mergeElements, _checkIfPreElement } from './utils';
+import { PRE, insertPreElement, mergeElements, checkIfInsideOfPreElement } from './utils';
 /**
  * The pre plugin command.
  *
@@ -25,12 +25,10 @@ export default class PreCommand extends Command {
 
 
 	refresh() {
-		const model = this.editor.model;
-		const doc = model.document;
-		let _option = _checkIfPreElement(this.editor);
+		const editor = this.editor;
 
 		this.isEnabled = true;
-		this.value = _option ? _option.title:"select language";
+		this.value = checkIfInsideOfPreElement(editor);
 	}
 
 	/**
@@ -43,7 +41,6 @@ export default class PreCommand extends Command {
 		const model = this.editor.model;
 		const selection = model.document.selection;
 		let _language = options&&options.language?options.language:"auto";
-		let _isInsideOfPre = _checkIfPreElement(this.editor);
 
 		model.change( writer => {
 			let preElement = writer.createElement( PRE, {class:_language+' pre_wrap ck-widget'} );

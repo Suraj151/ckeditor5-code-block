@@ -36,6 +36,11 @@ export function isPreElement( modelElement ) {
 	return !!(modelElement && modelElement.is(PRE));
 }
 
+export function isSpanElement( element ) {
+
+	return !!(element && element.is('span'));
+}
+
 export function getIfInsideOfPreElement( selection ) {
 
 	const viewElement = selection.getSelectedElement();
@@ -50,6 +55,12 @@ export function getIfInsideOfPreElement( selection ) {
 	return null;
 }
 
+export function checkIfInsideOfPreElement( editor ) {
+
+	const doc = editor.model.document;
+	return !!getIfInsideOfPreElement( doc.selection );
+}
+
 export function getPreElementWidgetSelected( selection ) {
 
 	const viewElement = selection.getSelectedElement();
@@ -57,7 +68,6 @@ export function getPreElementWidgetSelected( selection ) {
 		return viewElement;
 	}
 	return getIfInsideOfPreElement(selection);
-	// return null;
 }
 
 export function isPreElementWidgetSelected( selection ) {
@@ -142,39 +152,30 @@ export function modelToViewAttributeConverter( attributeKey ) {
 	}
 }
 
-export function _checkIfPreElement( editor ) {
-	const doc = editor.model.document;
-	const positionParent = doc.selection.getLastPosition().parent;
-	return positionParent && positionParent.name == PRE;
-}
-
 export function enableSpanElementInPre( editor ) {
 
 	const schema = editor.model.schema;
 	const conversion = editor.conversion;
 
 	schema.register( 'span', {
-			allowWhere: '$text',
-			allowContentOf: '$block',
-			isInline: true,
-			isObject: true,
+			inheritAllFrom: '$block',
+			allowIn: PRE,
 			allowAttributes: [ 'class' ]
 	} );
 
-	schema.extend( 'span', { allowIn: PRE } );
-	schema.extend( '$text', { allowIn: 'span' } );
-
-
 	conversion.for( 'downcast' ).elementToElement( {
 		model: 'span',
-		view: ( modelElement, viewWriter ) => viewWriter.createContainerElement( 'span', { class: modelElement.getAttribute( 'class' ) } )
+		view: ( modelElement, viewWriter ) => {
+			return viewWriter.createEditableElement( 'span', modelElement.getAttributes() )
+		}
 	} );
 
 	conversion.for( 'upcast' ).elementToElement( {
 		view: 'span',
-		model: ( viewElement, modelWriter ) => modelWriter.createElement( 'span', { class: viewElement.getAttribute( 'class' ) } )
+		model: ( viewElement, modelWriter ) => {
+			return modelWriter.createElement( 'span', viewElement.getAttributes() );
+		}
 	} );
-
 }
 
 

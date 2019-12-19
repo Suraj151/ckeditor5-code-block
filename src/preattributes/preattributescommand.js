@@ -1,5 +1,5 @@
 import Command from '@ckeditor/ckeditor5-core/src/command';
-import { isPreElement, _checkIfPreElement, getPreElementWidgetSelected } from '../utils';
+import { isPreElement, getPreElementWidgetSelected } from '../utils';
 
 /**
  * The pre element attribute edit command. It is used to change the `class` attribute of `<pre>` elements.
