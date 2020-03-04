@@ -36,6 +36,11 @@ export function isPreElement( modelElement ) {
 	return !!(modelElement && modelElement.is(PRE));
 }
 
+export function isParagraphElement( element ) {
+
+	return !!(element && element.is('paragraph'));
+}
+
 export function isSpanElement( element ) {
 
 	return !!(element && element.is('span'));

@@ -169,7 +169,7 @@ After build you can see code block pre element icon in classic editor top bars.
 
 **Custom Options**
 
-you can define language select/edit option for code block. just add this options in editor config as shown in below example. custom tab in code edit added as no of white spaces. you can adjust this from same config option as below.
+you can define language select/edit or code remove option for code block. just add this options in editor config as shown in below example. custom tab in code edit added as no of white spaces. you can adjust this from same config option as below.
 
 
 ```js
@@ -188,7 +188,7 @@ ClassicEditor
 			language: _language,
 			title: _language=="cs"?"c#":_language
 		};}),
-		toolbar: [ 'EditLanguage', '|', 'SelectLanguage' ],
+		toolbar: [ 'EditLanguage', '|', 'SelectLanguage', '|', 'CloseCodeBlock' ],
 		noOfSpaceForTabKey: 4
 	}
 

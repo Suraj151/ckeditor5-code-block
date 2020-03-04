@@ -11,6 +11,7 @@ import {
 	checkIfInsideOfPreElement,
 	modelToViewAttributeConverter,
 	isPreElement,
+	isParagraphElement,
 	isSpanElement,
 	toPreWidget,
 	toPreWidgetEditable,
@@ -144,19 +145,22 @@ export default class PreEditing extends Plugin {
 
 		this.listenTo( editor.editing.view.document, 'keydown', ( evt, data ) => {
 
-			// const selection = editor.model.document.selection;
-			// if ( (data.keyCode == keyCodes.delete || data.keyCode == keyCodes.backspace) && checkIfInsideOfPreElement(editor) ) {
-			//
-			// 	const _element = selection.getSelectedElement()?selection.getSelectedElement():selection.getLastPosition()?selection.getLastPosition().parent:null;
-			// 	if( isSpanElement( _element ) ){
-			//
-			// 		editor.model.change( writer => {
-			// 		    writer.remove( _element );
-			// 		} );
-			// 		data.preventDefault();
-			// 		evt.stop();
-			// 	}
-			// }
+			const selection = editor.model.document.selection;
+			if ( (data.keyCode == keyCodes.delete || data.keyCode == keyCodes.backspace) && checkIfInsideOfPreElement(editor) ) {
+
+				const _element = selection.getSelectedElement()?selection.getSelectedElement():selection.getLastPosition()?selection.getLastPosition().parent:null;
+
+				if( (isParagraphElement( _element ) && isPreElement( _element.parent ) && _element.isEmpty && _element.parent.childCount == 1) ||
+					( isPreElement( _element ) && _element.childCount == 1 && isParagraphElement( _element.getChild(0) ) && _element.getChild(0).isEmpty )
+				){
+
+					editor.model.change( writer => {
+					    writer.remove( isPreElement( _element ) ? _element:_element.parent );
+					} );
+					data.preventDefault();
+					evt.stop();
+				}
+			}
 
 			if ( (data.keyCode == keyCodes.tab) && checkIfInsideOfPreElement(editor) ) {
 

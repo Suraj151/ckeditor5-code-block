@@ -9,6 +9,7 @@ import { repositionContextualBalloon, getBalloonPositionData } from '../utils';
 import { isPreElementWidgetSelected, isPreElement } from '../utils';
 import classAttributesEditIcon from '@ckeditor/ckeditor5-core/theme/icons/pencil.svg';
 import classAttributesSelectIcon from '@ckeditor/ckeditor5-core/theme/icons/three-vertical-dots.svg';
+import codeBlockCloseIcon from '@ckeditor/ckeditor5-core/theme/icons/cancel.svg';
 import Collection from '@ckeditor/ckeditor5-utils/src/collection';
 
 
@@ -43,8 +44,7 @@ export default class PreAttributesUI extends Plugin {
 
 		const t = editor.t;
 		const options = editor.config.get( 'preCodeBlock.languages' )||[];
-		const defaultTitle = t( 'Select language' );
-		const dropdownTooltip = t( 'language' );
+		const dropdownTooltip = t( 'Select language' );
 
 		const titles = {};
 		const itemDefinitions = new Collection();
@@ -143,20 +143,39 @@ export default class PreAttributesUI extends Plugin {
 			return view;
 		} );
 
+
+		//uncomment below if want parent button to enable language select option
 		editor.ui.componentFactory.add( 'SelectLanguage', locale => {
+			// const command = editor.commands.get( 'preAttributes' );
+			// const view = new ButtonView( locale );
+			//
+			// view.set( {
+			// 	label: t( 'Select language' ),
+			// 	icon: classAttributesSelectIcon,
+			// 	tooltip: true
+			// } );
+			//
+			// view.bind( 'isEnabled' ).to( command, 'isEnabled' );
+			// this.listenTo( view, 'execute', () => this._addDropDownView() );
+			// return view;
+			return this.dropDownView;
+		} );
+
+		editor.ui.componentFactory.add( 'CloseCodeBlock', locale => {
 			const command = editor.commands.get( 'preAttributes' );
 			const view = new ButtonView( locale );
 
 			view.set( {
-				label: t( 'Select language' ),
-				icon: classAttributesSelectIcon,
+				label: t( 'Close Code Block' ),
+				icon: codeBlockCloseIcon,
 				tooltip: true
 			} );
 
 			view.bind( 'isEnabled' ).to( command, 'isEnabled' );
-			this.listenTo( view, 'execute', () => this._addDropDownView() );
+			this.listenTo( view, 'execute', () =>	editor.execute( 'preClose' ) );
 			return view;
 		} );
+
 	}
 
 	_createForm() {
