@@ -19,6 +19,14 @@ export function toPreWidget( viewElement, writer, label ) {
 	return toWidget( viewElement, writer, { label: label } );
 }
 
+export function getDataLanguageFromClass( editor, language_class ) {
+
+	let _class = language_class.replace(/ck-widget| /g, '');
+	const language_options = editor.config.get( 'preCodeBlock.languages' )||[];
+	const selected_language = language_options.filter(option => option.language==_class);
+	return selected_language[0]&&selected_language[0].title?selected_language[0].title:_class;
+}
+
 export function toPreWidgetEditable( viewElement, writer, label ) {
 
 	writer.setCustomProperty( preElementSymbol, true, viewElement );
@@ -135,10 +143,12 @@ export function insertPreElement( preElement, writer, model ) {
 	}
 }
 
-export function modelToViewAttributeConverter( attributeKey ) {
+export function modelToViewAttributeConverter( editor, attributeKeys ) {
 
 	return dispatcher => {
-		dispatcher.on( `attribute:${ attributeKey }`, converter );
+		for (var i = 0; i < attributeKeys.length; i++) {
+			dispatcher.on( `attribute:${ attributeKeys[i] }`, converter );
+		}
 	};
 
 	function converter( evt, data, conversionApi ) {
@@ -150,7 +160,11 @@ export function modelToViewAttributeConverter( attributeKey ) {
 		const pre = conversionApi.mapper.toViewElement( data.item );
 
 		if( data && pre && data.attributeNewValue ){
-			viewWriter.setAttribute( data.attributeKey, data.attributeNewValue, pre );
+			viewWriter.setAttribute(
+				data.attributeKey,
+				data.attributeKey=='data-language'?getDataLanguageFromClass(editor, data.attributeNewValue):data.attributeNewValue,
+				pre
+			);
 		}else {
 			// viewWriter.removeAttribute( data.attributeKey, pre );
 		}

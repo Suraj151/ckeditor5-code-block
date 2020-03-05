@@ -7,7 +7,7 @@ import Command from '@ckeditor/ckeditor5-core/src/command';
 import Range from '@ckeditor/ckeditor5-engine/src/model/range';
 import Position from '@ckeditor/ckeditor5-engine/src/model/position';
 import Element from '@ckeditor/ckeditor5-engine/src/model/element';
-import { PRE, insertPreElement, mergeElements, checkIfInsideOfPreElement } from './utils';
+import { PRE, insertPreElement, mergeElements, checkIfInsideOfPreElement, getDataLanguageFromClass } from './utils';
 /**
  * The pre plugin command.
  *
@@ -43,7 +43,10 @@ export default class PreCommand extends Command {
 		let _language = options&&options.language?options.language:"auto";
 
 		model.change( writer => {
-			let preElement = writer.createElement( PRE, {class:_language+' pre_wrap ck-widget'} );
+			let preElement = writer.createElement( PRE, {
+				'class':_language+' ck-widget',
+				'data-language': getDataLanguageFromClass(this.editor,_language)
+			} );
 			insertPreElement( preElement, writer, model );
 		} );
 	}

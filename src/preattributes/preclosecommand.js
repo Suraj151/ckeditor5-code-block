@@ -12,14 +12,6 @@ export default class PreCloseCommand extends Command {
 		const model = editor.model;
 		const element = getPreElementWidgetSelected( model.document.selection );
 		this.isEnabled = isPreElement( element );
-
-		if ( this.isEnabled && element.hasAttribute( 'class' ) && element.getAttribute( 'class' ) ) {
-			this.value = element.getAttribute( 'class' ).replace(/pre_wrap|ck-widget| /g, '');
-			this.preElement = element;
-		}else {
-			this.value = false;
-			this.preElement = null;
-		}
 	}
 
 	/**

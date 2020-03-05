@@ -51,7 +51,7 @@ export default class PreEditing extends Plugin {
 	    allowContentOf: '$block',
 			isBlock: true,
 			isObject: true,
-			allowAttributes:['class']
+			allowAttributes:['class', 'data-language']
 		} );
 
 		schema.extend( 'paragraph', { allowIn: PRE } );
@@ -83,7 +83,7 @@ export default class PreEditing extends Plugin {
 			upcastAlso: _upcast_with
 		} );
 
-		conversion.for( 'downcast' ).add( modelToViewAttributeConverter( 'class' ) );
+		conversion.for( 'downcast' ).add( modelToViewAttributeConverter( editor, ['class','data-language'] ) );
 
 		conversion.for( 'upcast' ).elementToElement( {
 			view: PRE,
