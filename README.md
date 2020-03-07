@@ -134,7 +134,7 @@ ClassicEditor.defaultConfig = {
 			'bulletedList',
 			'numberedList',
 			'imageUpload',
-      'pre',
+      			'pre',
 			'blockQuote',
 			'undo',
 			'redo'
@@ -170,28 +170,28 @@ var _code_languages = ["plain","c","cs","cpp","html","xml","css","javascript","p
 ClassicEditor
 	.create( document.querySelector( '#editor' ), {
 
-    preCodeBlock :{
+	preCodeBlock :{
 
 		languages: _code_languages.map( _language => {return{
 			language: _language,
 			title: _language=="cs"?"c#":_language
 		};}),
-    toolbar: [ 'EditLanguage', '|', 'SelectLanguage' , '|', 'HighlightCodeBlock', '|', 'CloseCodeBlock'],
-		noOfSpaceForTabKey: 4,
-    highlightConfig:{
-      // this function is called whenever syntax highlighting is requested.
-      // the highlighting pre element and language will be the arguments for this function
-      // this function should return syntax highlighted block.
-      // below example uses highlightjs as syntax highlighter
-      highlighter:( pre_block, language )=>{
+		toolbar: [ 'EditLanguage', '|', 'SelectLanguage' , '|', 'HighlightCodeBlock', '|', 'CloseCodeBlock'],
+			noOfSpaceForTabKey: 4,
+		highlightConfig:{
+			// this function is called whenever syntax highlighting is requested.
+			// the highlighting pre element and language will be the arguments for this function
+			// this function should return syntax highlighted block.
+			// below example uses highlightjs as syntax highlighter
+			highlighter:( pre_block, language )=>{
 
-        // to undo highlighting simply uncomment below two lines and return pre_block as is
-        // or you can select plain/text/nohighlight option from language if highlighter supports
-        pre_block.innerHTML = pre_block.innerHTML.replace(/<br[ \/]*>/gi, '\n');
-        hljs.highlightBlock(pre_block); // refer https://github.com/highlightjs/highlight.js
-        return pre_block; // return highlighted pre block to plugin
-      }
-    }
+				// to undo highlighting simply uncomment below two lines and return pre_block as is
+				// or you can select plain/text/nohighlight option from language if highlighter supports
+				pre_block.innerHTML = pre_block.innerHTML.replace(/<br[ \/]*>/gi, '\n');
+				hljs.highlightBlock(pre_block); // refer https://github.com/highlightjs/highlight.js
+				return pre_block; // return highlighted pre block to plugin
+			}
+		}
 	}
 
 	} )
@@ -202,15 +202,16 @@ ClassicEditor
 		console.error( err.stack );
 	} );
 ```
+
 **Highlighter**
 
 Option of syntax highlighting is added for test purpose you can use/ignore it. this option will get active if we define highlighter function in **highlightConfig** and specify **'HighlightCodeBlock'** option in toolbar while initializing the editor as shown in above example.
 
 Above example uses the [hljs](https://github.com/highlightjs/highlight.js) syntax highlighter to hilight code. for more refer https://github.com/highlightjs/highlight.js
 
-To use highlighter select language from dropdown and click on highlight button in balloon option it will highlight the syntax as per highlighter specified in config.
+To highlight syntax select language from dropdown and click on highlight code block button in balloon option it will highlight the syntax as per highlighter defined in config.
 
-To undo syntax highlighted block to plain text you can return same pre block without highlighting it or you can select plain/text/nohighlight language ( if your highlighter supports and added in your language options ) and click the highlight button.
+To undo syntax highlighted block to plain text you can return same pre block without highlighting it or you can select plain/text/nohighlight language ( if your highlighter supports and added in your language options ) and click the highlight code block button.
 
 
 **key pairs**
