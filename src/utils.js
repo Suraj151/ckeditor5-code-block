@@ -171,33 +171,6 @@ export function modelToViewAttributeConverter( editor, attributeKeys ) {
 	}
 }
 
-export function enableSpanElementInPre( editor ) {
-
-	const schema = editor.model.schema;
-	const conversion = editor.conversion;
-
-	schema.register( 'span', {
-			inheritAllFrom: '$block',
-			allowIn: PRE,
-			allowAttributes: [ 'class' ]
-	} );
-
-	conversion.for( 'downcast' ).elementToElement( {
-		model: 'span',
-		view: ( modelElement, viewWriter ) => {
-			return viewWriter.createEditableElement( 'span', modelElement.getAttributes() )
-		}
-	} );
-
-	conversion.for( 'upcast' ).elementToElement( {
-		view: 'span',
-		model: ( viewElement, modelWriter ) => {
-			return modelWriter.createElement( 'span', viewElement.getAttributes() );
-		}
-	} );
-}
-
-
 // export function mergeElements( model, writer, _continue ){
 //
 // 	let selection = model.document.selection;

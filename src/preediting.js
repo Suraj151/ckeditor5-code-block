@@ -14,9 +14,9 @@ import {
 	isParagraphElement,
 	isSpanElement,
 	toPreWidget,
-	toPreWidgetEditable,
-	enableSpanElementInPre
+	toPreWidgetEditable
 } from './utils';
+import { highlight_init } from './highlighter/highlightediting';
 
 const keyCodes = {
 	backspace: 8,
@@ -45,6 +45,7 @@ export default class PreEditing extends Plugin {
 		const conversion = editor.conversion;
 		const mapper = editor.editing.mapper;
 		const options = editor.config.get( 'preCodeBlock.languages' ) || [];
+		const highlightOptions = editor.config.get( 'preCodeBlock.highlightConfig' ) || {};
 
 		schema.register( PRE, {
 			allowWhere: '$block',
@@ -93,7 +94,9 @@ export default class PreEditing extends Plugin {
 		// Create pre commands.
 		editor.commands.add( PRE, new PreCommand( editor, options ) );
 
-		// enableSpanElementInPre(editor);
+		if( highlightOptions && highlightOptions.highlighter ){
+			highlight_init( this );
+		}
 	}
 
 	afterInit() {

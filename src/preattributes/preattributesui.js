@@ -10,6 +10,7 @@ import { isPreElementWidgetSelected, isPreElement } from '../utils';
 import classAttributesEditIcon from '@ckeditor/ckeditor5-core/theme/icons/pencil.svg';
 import classAttributesSelectIcon from '@ckeditor/ckeditor5-core/theme/icons/three-vertical-dots.svg';
 import codeBlockCloseIcon from '@ckeditor/ckeditor5-core/theme/icons/cancel.svg';
+import codeBlockHighlightIcon from '../../theme/icons/highlight.svg';
 import Collection from '@ckeditor/ckeditor5-utils/src/collection';
 
 
@@ -127,6 +128,7 @@ export default class PreAttributesUI extends Plugin {
 	_createButton() {
 		const editor = this.editor;
 		const t = editor.t;
+		const highlightOptions = editor.config.get( 'preCodeBlock.highlightConfig' ) || {};
 
 		editor.ui.componentFactory.add( 'EditLanguage', locale => {
 			const command = editor.commands.get( 'preAttributes' );
@@ -175,6 +177,24 @@ export default class PreAttributesUI extends Plugin {
 			this.listenTo( view, 'execute', () =>	editor.execute( 'preClose' ) );
 			return view;
 		} );
+
+		if( highlightOptions && highlightOptions.highlighter ){
+
+			editor.ui.componentFactory.add( 'HighlightCodeBlock', locale => {
+				const command = editor.commands.get( 'preAttributes' );
+				const view = new ButtonView( locale );
+
+				view.set( {
+					label: t( 'Highlight Code Block' ),
+					icon: codeBlockHighlightIcon,
+					tooltip: true
+				} );
+
+				view.bind( 'isEnabled' ).to( command, 'isEnabled' );
+				this.listenTo( view, 'execute', () =>	editor.execute( 'preHighlight' ) );
+				return view;
+			} );
+		}
 
 	}
 

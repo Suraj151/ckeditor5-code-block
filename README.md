@@ -2,19 +2,7 @@
 pre element (to write longer code snippets) for CKEditor 5. https://ckeditor.com
 
 
-this will enable add code block feature to editor with language select feature. languages are added that supported by Javascript syntax highlighter.
-additionally edit option is provided where we can edit language name. actually it adds entered language as classname to pre element.
-
-use
-
-```js
-$(document).ready(function() {
-  $('pre').each(function(i, block) {
-    hljs.highlightBlock(block);
-  });
-});
-```
-to hilight code. for more refer https://github.com/highlightjs/highlight.js
+this will enable add code block feature to editor with language select, edit, highlight feature. languages are added that supported by Javascript syntax highlighter. Additionally edit option is provided where we can edit language name. actually it adds entered language as classname to pre element.
 
 **Example**
 
@@ -171,25 +159,39 @@ After build you can see code block pre element icon in classic editor top bars.
 
 you can define language select/edit or code remove option for code block. just add this options in editor config as shown in below example. custom tab in code edit added as no of white spaces. you can adjust this from same config option as below.
 
-
 ```js
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-
+const hljs = require('./highlight.js');
 // Or using the CommonJS version:
 // const ClassicEditor = require( '@ckeditor/ckeditor5-build-classic' );
 
-var _code_languages = ["auto","c","cs","cpp","html","xml","css","javascript","python","sql","php","perl","ruby","markdown"];
+var _code_languages = ["plain","c","cs","cpp","html","xml","css","javascript","python","sql","php","perl","ruby","markdown","auto"];
 
 ClassicEditor
 	.create( document.querySelector( '#editor' ), {
 
-        preCodeBlock :{
+    preCodeBlock :{
+
 		languages: _code_languages.map( _language => {return{
 			language: _language,
 			title: _language=="cs"?"c#":_language
 		};}),
-		toolbar: [ 'EditLanguage', '|', 'SelectLanguage', '|', 'CloseCodeBlock' ],
-		noOfSpaceForTabKey: 4
+    toolbar: [ 'EditLanguage', '|', 'SelectLanguage' , '|', 'HighlightCodeBlock', '|', 'CloseCodeBlock'],
+		noOfSpaceForTabKey: 4,
+    highlightConfig:{
+      // this function is called whenever syntax highlighting is requested.
+      // the highlighting pre element and language will be the arguments for this function
+      // this function should return syntax highlighted block.
+      // below example uses highlightjs as syntax highlighter
+      highlighter:( pre_block, language )=>{
+
+        // to undo highlighting simply uncomment below two lines and return pre_block as is
+        // or you can select plain/text/nohighlight option from language if highlighter supports
+        pre_block.innerHTML = pre_block.innerHTML.replace(/<br[ \/]*>/gi, '\n');
+        hljs.highlightBlock(pre_block); // refer https://github.com/highlightjs/highlight.js
+        return pre_block; // return highlighted pre block to plugin
+      }
+    }
 	}
 
 	} )
@@ -200,6 +202,16 @@ ClassicEditor
 		console.error( err.stack );
 	} );
 ```
+**Highlighter**
+
+Option of syntax highlighting is added for test purpose you can use/ignore it. this option will get active if we define highlighter function in **highlightConfig** and specify **'HighlightCodeBlock'** option in toolbar while initializing the editor as shown in above example.
+
+Above example uses the [hljs](https://github.com/highlightjs/highlight.js) syntax highlighter to hilight code. for more refer https://github.com/highlightjs/highlight.js
+
+To use highlighter select language from dropdown and click on highlight button in balloon option it will highlight the syntax as per highlighter specified in config.
+
+To undo syntax highlighted block to plain text you can return same pre block without highlighting it or you can select plain/text/nohighlight language ( if your highlighter supports and added in your language options ) and click the highlight button.
+
 
 **key pairs**
 added ctrl+uparrow and ctrl+downarrow to get outside when inside of codeblock.
